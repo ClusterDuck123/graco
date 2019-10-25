@@ -76,8 +76,9 @@ class Calculate:
         file_in = get_orbits_path()
 
         if   dtype == pd.DataFrame:
-            columnn_names = [f'o{i}' for i in range(15)]
+            columnn_names = [f'{i}' for i in range(15)]
             df = pd.read_csv(file_in, delimiter=' ', names=columnn_names)
+            df.columns.name = 'Orbit'
             return df.rename(index=reverse_mapping)
 
         elif dtype == np.ndarray:
@@ -95,22 +96,24 @@ class Calculate:
             raise TypeError('Please provide an appropriate type.')
 
         GCV = pd.DataFrame({
-            'c_0-2' : 2*GDV['o2']  / (GDV['o0'] * (GDV['o0']-1)),
-            'c_0-3' : 2*GDV['o3']  / (GDV['o0'] * (GDV['o0']-1)),
+            ('0','2') : 2*GDV['2']  / (GDV['0'] * (GDV['0']-1)),
+            ('0','3') : 2*GDV['3']  / (GDV['0'] * (GDV['0']-1)),
 
-            'c_1-5' : 1*GDV['o5' ] / (GDV['o1'] * (GDV['o0']-1)),
-            'c_1-8' : 2*GDV['o8' ] / (GDV['o1'] * (GDV['o0']-1)),
-            'c_1-10': 1*GDV['o10'] / (GDV['o1'] * (GDV['o0']-1)),
-            'c_1-12': 2*GDV['o12'] / (GDV['o1'] * (GDV['o0']-1)),
+            ('1','5') : 1*GDV['5' ] / (GDV['1'] * (GDV['0']-1)),
+            ('1','8') : 2*GDV['8' ] / (GDV['1'] * (GDV['0']-1)),
+            ('1','10'): 1*GDV['10'] / (GDV['1'] * (GDV['0']-1)),
+            ('1','12'): 2*GDV['12'] / (GDV['1'] * (GDV['0']-1)),
 
-            'c_2-7' : 3*GDV['o7']  / (GDV['o2'] * (GDV['o0']-2)),
-            'c_2-11': 2*GDV['o11'] / (GDV['o2'] * (GDV['o0']-2)),
-            'c_2-13': 1*GDV['o13'] / (GDV['o2'] * (GDV['o0']-2)),
+            ('2','7') : 3*GDV['7']  / (GDV['2'] * (GDV['0']-2)),
+            ('2','11'): 2*GDV['11'] / (GDV['2'] * (GDV['0']-2)),
+            ('2','13'): 1*GDV['13'] / (GDV['2'] * (GDV['0']-2)),
 
-            'c_3-11': 1*GDV['o11'] / (GDV['o3'] * (GDV['o0']-2)),
-            'c_3-13': 2*GDV['o13'] / (GDV['o3'] * (GDV['o0']-2)),
-            'c_3-14': 3*GDV['o14'] / (GDV['o3'] * (GDV['o0']-2))
+            ('3','11'): 1*GDV['11'] / (GDV['3'] * (GDV['0']-2)),
+            ('3','13'): 2*GDV['13'] / (GDV['3'] * (GDV['0']-2)),
+            ('3','14'): 3*GDV['14'] / (GDV['3'] * (GDV['0']-2))
         })
+        GCV.columns.name  = 'Coefficient'
+        GCV.columns.names = ['Source', 'Target']
         if   dtype == pd.DataFrame:
             return GCV
         elif dtype == np.ndarray:
