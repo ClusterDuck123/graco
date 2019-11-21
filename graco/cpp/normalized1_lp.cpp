@@ -98,7 +98,7 @@ int main(int argc, char const *argv[]) {
 	      for (auto i = 0; i < n; i++) {
 					denom = std::abs(GDV[u][i] - GDV[v][i]);
 					nom   = std::abs(GDV[u][i]) + std::abs(GDV[v][i]);
-					max = std::max(double(denom)/nom, max);
+					if (nom != 0) max = std::max(double(denom)/nom, max);
 	      }
 	      D[u][v] = max;
 	      D[v][u] = D[u][v];
@@ -114,7 +114,7 @@ int main(int argc, char const *argv[]) {
 	      for (auto i = 0; i < n; i++) {
 					double denom = std::abs(GDV[u][i] - GDV[v][i]);
 					double nom   = std::abs(GDV[u][i]) + std::abs(GDV[v][i]);
-					sum += std::pow(denom/nom, p);
+					if (nom != 0) sum += std::pow(denom/nom, p);
 
 	      }
 	      D[u][v] = std::pow(sum, 1./p);

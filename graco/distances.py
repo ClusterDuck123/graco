@@ -25,19 +25,22 @@ def run_cmd(cmd):
         raise subprocess.CalledProcessError(cmd = cmd,
                     returncode = completed_process.returncode)
 
+def write_matrix(M):
+    np.savetxt(MATRIX_IN,
+               M,
+               header=' '.join(map(str,M.shape)),
+               fmt='%d')
 
-class Write:
-    @staticmethod
-    def GDV(M):
-        np.savetxt(MATRIX_IN,
-                   M,
-                   header=' '.join(map(str,M.shape)),
-                   fmt='%d')
 
-class Calculate:
-    @staticmethod
-    def GDV_similarity(M):
-        Write.GDV(M)
-        cmd = [f"{CPP_DIRECTORY}/tijana", MATRIX_IN, MATRIX_OUT]
-        run_cmd(cmd)
-        return np.loadtxt(MATRIX_OUT)
+def GDV_similarity(M):
+    write_matrix(M)
+    cmd = [f"{CPP_DIRECTORY}/tijana", MATRIX_IN, MATRIX_OUT]
+    run_cmd(cmd)
+    return np.loadtxt(MATRIX_OUT)
+
+def normalized1_lp(M, p=1):
+    write_matrix(M)
+    if p == np.inf: p = 0
+    cmd = [f"{CPP_DIRECTORY}/normalized1_lp", str(p), MATRIX_IN, MATRIX_OUT]
+    run_cmd(cmd)
+    return np.loadtxt(MATRIX_OUT)
