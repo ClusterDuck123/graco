@@ -25,22 +25,38 @@ def run_cmd(cmd):
         raise subprocess.CalledProcessError(cmd = cmd,
                     returncode = completed_process.returncode)
 
-def write_matrix(M):
+def write_matrix(M, fmt):
     np.savetxt(MATRIX_IN,
                M,
                header=' '.join(map(str,M.shape)),
-               fmt='%d')
+               fmt=fmt)
 
 
 def GDV_similarity(M):
-    write_matrix(M)
-    cmd = [f"{CPP_DIRECTORY}/tijana", MATRIX_IN, MATRIX_OUT]
-    run_cmd(cmd)
-    return np.loadtxt(MATRIX_OUT)
+    if type(M) == pd.DataFrame:
+        M = M.values
+    if   M.dtype == int:
+        write_matrix(M, fmt='%d')
+        cmd = [f"{CPP_DIRECTORY}/int_GDV-similarity", MATRIX_IN, MATRIX_OUT]
+        run_cmd(cmd)
+        return np.loadtxt(MATRIX_OUT)
+    else:
+        raise Exception("Datatype not understood.")
 
 def normalized1_lp(M, p=1):
-    write_matrix(M)
-    if p == np.inf: p = 0
-    cmd = [f"{CPP_DIRECTORY}/normalized1_lp", str(p), MATRIX_IN, MATRIX_OUT]
-    run_cmd(cmd)
-    return np.loadtxt(MATRIX_OUT)
+    if type(M) == pd.DataFrame:
+        M = M.values
+    if  M.dtype == int:
+        write_matrix(M, fmt='%d')
+        if p == np.inf: p = 0
+        cmd = [f"{CPP_DIRECTORY}/int_normalized1_lp", str(p), MATRIX_IN, MATRIX_OUT]
+        run_cmd(cmd)
+        return np.loadtxt(MATRIX_OUT)
+    elif M.dtype == float:
+        write_matrix(M, fmt='%.7f')
+        if p == np.inf: p = 0
+        cmd = [f"{CPP_DIRECTORY}/float_normalized1_lp", str(p), MATRIX_IN, MATRIX_OUT]
+        run_cmd(cmd)
+        return np.loadtxt(MATRIX_OUT)
+    else:
+        raise Exception(f"Datatype not understood. {M.dtype}")

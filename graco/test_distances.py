@@ -32,19 +32,19 @@ class TestGDVDistances(unittest.TestCase):
     def setUp(self):
         self.GDV = np.random.randint(100, size=[100,15])
 
-    def test_GDV_similarity(self):
+    def test_int_GDV_similarity(self):
         D1 = GDV_similarity(self.GDV)
         D2 = graco.distances.GDV_similarity(self.GDV)
         np.testing.assert_almost_equal(D1, D2, decimal=4)
 
-    def test_lormalized1_l1(self):
+    def test_int_lormalized1_l1(self):
         D1 = cdist(self.GDV.astype(float),
                    self.GDV.astype(float),
                    normalized1_lp)
         D2 = graco.distances.normalized1_lp(self.GDV)
         np.testing.assert_almost_equal(D1, D2, decimal=4)
 
-    def test_lormalized1_l2(self):
+    def test_int_lormalized1_l2(self):
         D1 = cdist(self.GDV.astype(float),
                    self.GDV.astype(float),
                    partial(normalized1_lp, p=2))
@@ -52,11 +52,37 @@ class TestGDVDistances(unittest.TestCase):
         np.testing.assert_almost_equal(D1, D2, decimal=4)
 
 
-    def test_lormalized1_linf(self):
+    def test_int_lormalized1_linf(self):
         D1 = cdist(self.GDV.astype(float),
                    self.GDV.astype(float),
                    partial(normalized1_lp, p=np.inf))
         D2 = graco.distances.normalized1_lp(self.GDV, np.inf)
+        np.testing.assert_almost_equal(D1, D2, decimal=4)
+
+
+class TestGCVDistances(unittest.TestCase):
+    def setUp(self):
+        self.GCV = np.random.uniform(size=[100,4])
+
+    def test_float_lormalized1_l1(self):
+        D1 = cdist(self.GCV.astype(float),
+                   self.GCV.astype(float),
+                   normalized1_lp)
+        D2 = graco.distances.normalized1_lp(self.GCV)
+        np.testing.assert_almost_equal(D1, D2, decimal=4)
+
+    def test_float_lormalized1_l2(self):
+        D1 = cdist(self.GCV.astype(float),
+                   self.GCV.astype(float),
+                   partial(normalized1_lp, p=2))
+        D2 = graco.distances.normalized1_lp(self.GCV, 2)
+        np.testing.assert_almost_equal(D1, D2, decimal=4)
+
+    def test_float_lormalized1_linf(self):
+        D1 = cdist(self.GCV.astype(float),
+                   self.GCV.astype(float),
+                   partial(normalized1_lp, p=np.inf))
+        D2 = graco.distances.normalized1_lp(self.GCV, np.inf)
         np.testing.assert_almost_equal(D1, D2, decimal=4)
 
 if __name__ == '__main__':
