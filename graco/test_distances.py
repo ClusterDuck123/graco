@@ -13,8 +13,8 @@ import numpy as np
 # ============================================================================
 
 def normalized1_lp(P,Q,p=1):
-    v1 = np.divide(P, P+Q, out=np.zeros_like(P), where=(P+Q)!=0)
-    v2 = np.divide(Q, P+Q, out=np.zeros_like(Q), where=(P+Q)!=0)
+    v1 = np.divide(P, abs(P)+abs(Q), out=np.zeros_like(P), where=(P+Q)!=0)
+    v2 = np.divide(Q, abs(P)+abs(Q), out=np.zeros_like(Q), where=(P+Q)!=0)
     return np.linalg.norm(v1-v2,p)
 
 def GDV_similarity(GDV):
