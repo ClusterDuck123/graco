@@ -13,6 +13,8 @@ import os
 
 CURRENT_DIRECTORY = os.path.dirname(__file__)
 
+
+
 def tvd(P,Q):
    return np.sum(np.abs(P-Q))/2
 
