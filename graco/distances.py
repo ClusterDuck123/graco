@@ -4,10 +4,10 @@ import sys
 
 def normalized1_lp(u,v,p=1):
     u0 = np.divide(u, abs(u)+abs(v),
-                   out   = np.zeros_like(u).astype(float),
+                   out   = np.zeros(u.shape),
                    where = (u+v)!=0)
     v0 = np.divide(v, abs(u)+abs(v),
-                   out   = np.zeros_like(v).astype(float),
+                   out   = np.zeros(v.shape),
                    where = (u+v)!=0)
     return np.linalg.norm(u0-v0, p)
 
