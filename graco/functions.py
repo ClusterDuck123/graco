@@ -14,11 +14,6 @@ import os
 CURRENT_DIRECTORY = os.path.dirname(__file__)
 
 
-
-def tvd(P,Q):
-   return np.sum(np.abs(P-Q))/2
-
-
 def get_orca_path():
     return f"{CURRENT_DIRECTORY}/orca/orca"
 def get_edgelist_path():

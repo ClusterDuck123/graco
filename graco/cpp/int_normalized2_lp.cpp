@@ -83,62 +83,73 @@ int main(int argc, char const *argv[]) {
   =============================
   */
 
-  // Create empty distance matrix
-  double **D = new double*[m];
-  for(auto i = 0; i < m; ++i)
-    D[i] = new double[m];
-
 	if (p == 0) {
-		double sum = 0;
+
+		// Create empty distance matrix
+		long long int **D = new long long int*[m];
+		for(auto i = 0; i < m; ++i)
+			D[i] = new long long int[m];
+
 	  for (auto u = 0; u < m; u++) {
 	    for (auto v = u+1; v < m; v++) {
-	      double max = 0;
-				long double num;
-				unsigned long long int denom;
+	      long long int max = 0;
+				long long int numer;
 	      for (auto i = 0; i < n; i++) {
-					num = std::abs(GDV[u][i] - GDV[v][i]);
-					denom   = std::abs(GDV[u][i]) + std::abs(GDV[v][i]);
-					if (denom != 0) max = std::max(double(num)/denom, max);
+					numer = std::abs(GDV[u][i] - GDV[v][i]);
+					max = std::max(numer, max);
 	      }
 	      D[u][v] = max;
 	      D[v][u] = D[u][v];
 			}
 		}
+
+
+
+//	=====================
+//	    write_results
+//	=====================
+		for (auto i=0;i<m;i++) {
+			for (auto j=0;j<m;j++)
+				fout << D[i][j] << ' ';
+	    fout << '\n';
+		}
+		fout.close();
 	}
 
 	else {
+
+		// Create empty distance matrix
+		double **D = new double*[m];
+		for(auto i = 0; i < m; ++i)
+			D[i] = new double[m];
+
 	  double sum = 0;
 	  for (auto u = 0; u < m; u++) {
 	    for (auto v = u+1; v < m; v++) {
 	      sum = 0;
 	      for (auto i = 0; i < n; i++) {
-					double num = std::abs(GDV[u][i] - GDV[v][i]);
-					double denom   = std::abs(GDV[u][i]) + std::abs(GDV[v][i]);
-					if (denom != 0) sum += std::pow(num/denom, p);
+					double numer = std::abs(GDV[u][i] - GDV[v][i]);
+					double denom = std::abs(GDV[u][i]) + std::abs(GDV[v][i]);
+					if (denom != 0) sum += std::pow(numer, p)/denom;
 
 	      }
 	      D[u][v] = std::pow(sum, 1./p);
 	      D[v][u] = D[u][v];
 	    }
 	  }
+
+
+//	=====================
+//	    write_results
+//	=====================
+
+		for (int i=0;i<m;i++) {
+			for (int j=0;j<m;j++)
+				fout << D[i][j] << ' ';
+	    fout << '\n';
+		}
+		fout.close();
 	}
-
-
-  write_results(D, m);
 
   return 0;
-}
-
-/*
-=================
-  write_results
-=================
-*/
-void write_results(double** D, int m){
-  for (auto i=0;i<m;i++) {
-		for (auto j=0;j<m;j++)
-			fout << D[i][j] << ' ';
-    fout << '\n';
-	}
-	fout.close();
 }

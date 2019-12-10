@@ -30,6 +30,17 @@ class TestIntCompabilities(unittest.TestCase):
         d2 = graco.distance(self.u,self.v, 'normalized1_linf')
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
+    def test_int_normalized2_lp(self):
+        p = np.random.randint(1,10)
+        d1 = graco.distances.normalized2_lp(self.u,self.v,p)
+        d2 = graco.distance(self.u,self.v, 'normalized2_l' + str(p))
+        np.testing.assert_almost_equal(d1, d2, decimal=4)
+
+    def test_int_normalized2_linf(self):
+        d1 = graco.distances.normalized2_lp(self.u,self.v,np.inf)
+        d2 = graco.distance(self.u,self.v, 'normalized2_linf')
+        np.testing.assert_almost_equal(d1, d2, decimal=4)
+
     def test_int_pdist(self):
         for distance in ['euclidean', 'cityblock', 'sqeuclidean',
                          'cosine', 'correlation', 'chebyshev',
@@ -45,18 +56,29 @@ class TestFloatCompabilities(unittest.TestCase):
         self.u = np.random.uniform(size=n)
         self.v = np.random.uniform(size=n)
 
-    def test_int_normalized1_lp(self):
+    def test_float_normalized1_lp(self):
         p = np.random.randint(1,10)
         d1 = graco.distances.normalized1_lp(self.u,self.v,p)
         d2 = graco.distance(self.u,self.v, 'normalized1_l' + str(p))
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
-    def test_int_normalized1_linf(self):
+    def test_float_normalized1_linf(self):
         d1 = graco.distances.normalized1_lp(self.u,self.v,np.inf)
         d2 = graco.distance(self.u,self.v, 'normalized1_linf')
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
-    def test_int_pdist(self):
+    def test_float_normalized2_lp(self):
+        p = np.random.randint(1,10)
+        d1 = graco.distances.normalized2_lp(self.u,self.v,p)
+        d2 = graco.distance(self.u,self.v, 'normalized2_l' + str(p))
+        np.testing.assert_almost_equal(d1, d2, decimal=4)
+
+    def test_float_normalized2_linf(self):
+        d1 = graco.distances.normalized2_lp(self.u,self.v,np.inf)
+        d2 = graco.distance(self.u,self.v, 'normalized2_linf')
+        np.testing.assert_almost_equal(d1, d2, decimal=4)
+
+    def test_float_pdist(self):
         for distance in ['euclidean', 'cityblock', 'sqeuclidean',
                          'cosine', 'correlation', 'chebyshev',
                          'canberra', 'braycurtis']:

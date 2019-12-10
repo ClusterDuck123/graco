@@ -93,12 +93,12 @@ int main(int argc, char const *argv[]) {
 	  for (auto u = 0; u < m; u++) {
 	    for (auto v = u+1; v < m; v++) {
 	      double max = 0;
+				long double num;
 				long double denom;
-				long double nom;
 	      for (auto i = 0; i < n; i++) {
-					denom = std::abs(GDV[u][i] - GDV[v][i]);
-					nom   = std::abs(GDV[u][i]) + std::abs(GDV[v][i]);
-					if (nom != 0) max = std::max(double(denom/nom), max);
+					num = std::abs(GDV[u][i] - GDV[v][i]);
+					denom   = std::abs(GDV[u][i]) + std::abs(GDV[v][i]);
+					if (denom != 0) max = std::max(double(num/denom), max);
 	      }
 	      D[u][v] = double(max);
 	      D[v][u] = D[u][v];
@@ -112,9 +112,9 @@ int main(int argc, char const *argv[]) {
 	    for (auto v = u+1; v < m; v++) {
 	      sum = 0;
 	      for (auto i = 0; i < n; i++) {
-					double denom = std::abs(GDV[u][i] - GDV[v][i]);
-					double nom   = std::abs(GDV[u][i]) + std::abs(GDV[v][i]);
-					if (nom != 0) sum += std::pow(denom/nom, p);
+					double num = std::abs(GDV[u][i] - GDV[v][i]);
+					double denom   = std::abs(GDV[u][i]) + std::abs(GDV[v][i]);
+					if (denom != 0) sum += std::pow(num/denom, p);
 
 	      }
 	      D[u][v] = std::pow(sum, 1./p);
