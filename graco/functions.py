@@ -9,17 +9,17 @@ import networkx as nx
 import pandas as pd
 import numpy as np
 import subprocess
+import time
 import os
 
-CURRENT_DIRECTORY = os.path.dirname(__file__)
+CURRENT_PATH = os.path.dirname(__file__)
+TMP_PATH  = f"{CURRENT_PATH}/tmp"
+ORCA_PATH = f"{CURRENT_PATH}/orca/orca"
 
-
-def get_orca_path():
-    return f"{CURRENT_DIRECTORY}/orca/orca"
 def get_edgelist_path():
-    return f"{CURRENT_DIRECTORY}/tmp/edgelist.tmp"
+    return f"{CURRENT_PATH}/tmp/edgelist.tmp"
 def get_orbits_path():
-    return f"{CURRENT_DIRECTORY}/tmp/orbits.tmp"
+    return f"{CURRENT_PATH}/tmp/orbits.tmp"
 
 def run_cmd(cmd):
     completed_process = subprocess.run(cmd,
@@ -50,7 +50,7 @@ class Write:
         if file_out is None:
             file_out = get_orbits_path()
 
-        orca     = get_orca_path()
+        orca     = ORCA_PATH
         orca_cmd = [orca, str(graphlet_nodes), file_in, file_out]
         run_cmd(orca_cmd)
 
