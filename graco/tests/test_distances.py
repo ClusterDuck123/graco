@@ -41,6 +41,11 @@ class TestIntCompabilities(unittest.TestCase):
         d2 = graco.distance(self.u,self.v, 'normalized2_linf')
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
+    def test_int_hellinger(self):
+        d1 = graco.distances.hellinger(self.u,self.v)
+        d2 = graco.distance(self.u,self.v, 'hellinger')
+        np.testing.assert_almost_equal(d1, d2, decimal=4)
+
     def test_int_pdist(self):
         for distance in ['euclidean', 'cityblock', 'sqeuclidean',
                          'cosine', 'correlation', 'chebyshev',
@@ -76,6 +81,11 @@ class TestFloatCompabilities(unittest.TestCase):
     def test_float_normalized2_linf(self):
         d1 = graco.distances.normalized2_lp(self.u,self.v,np.inf)
         d2 = graco.distance(self.u,self.v, 'normalized2_linf')
+        np.testing.assert_almost_equal(d1, d2, decimal=4)
+
+    def test_int_hellinger(self):
+        d1 = graco.distances.hellinger(self.u,self.v)
+        d2 = graco.distance(self.u,self.v, 'hellinger')
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
     def test_float_pdist(self):

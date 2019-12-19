@@ -68,8 +68,13 @@ class TestIntCompabilities(unittest.TestCase):
                          'cosine', 'correlation', 'chebyshev',
                          'canberra', 'braycurtis']:
             D1 = graco.distance_matrix(self.GDV, distance)
-            D2 = pdist(self.GDV, distance)
-            np.testing.assert_almost_equal(D1, D2, decimal=4)
+            D2 = squareform(pdist(self.GDV, distance))
+            D3 = squareform([graco.distance(u,v, distance)
+                            for u,v in combinations(self.GDV,2)])
+
+            np.testing.assert_allclose(D1, D2)
+            np.testing.assert_allclose(D1, D3)
+            np.testing.assert_allclose(D2, D3)
 
 class TestFloatCompabilities(unittest.TestCase):
     def setUp(self):
@@ -117,13 +122,28 @@ class TestFloatCompabilities(unittest.TestCase):
         np.testing.assert_almost_equal(D1, D3, decimal=4)
         np.testing.assert_almost_equal(D2, D3, decimal=4)
 
+    def test_float_hellinger(self):
+        D1 = graco.distance_matrices.hellinger(self.GCV)
+        D2 = graco.distance_matrix(self.GCV, 'hellinger')
+        D3 = squareform([graco.distances.hellinger(u,v)
+                        for u,v in combinations(self.GCV,2)])
+
+        np.testing.assert_almost_equal(D1, D2, decimal=4)
+        np.testing.assert_almost_equal(D1, D3, decimal=4)
+        np.testing.assert_almost_equal(D2, D3, decimal=4)
+
     def test_float_pdist(self):
         for distance in ['euclidean', 'cityblock', 'sqeuclidean',
                          'cosine', 'correlation', 'chebyshev',
                          'canberra', 'braycurtis']:
             D1 = graco.distance_matrix(self.GCV, distance)
-            D2 = pdist(self.GCV, distance)
-            np.testing.assert_almost_equal(D1, D2, decimal=4)
+            D2 = squareform(pdist(self.GCV, distance))
+            D3 = squareform([graco.distance(u,v, distance)
+                            for u,v in combinations(self.GCV,2)])
+
+            np.testing.assert_allclose(D1, D2)
+            np.testing.assert_allclose(D1, D3)
+            np.testing.assert_allclose(D2, D3)
 
 if __name__ == '__main__':
     unittest.main()

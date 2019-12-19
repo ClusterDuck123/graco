@@ -2,6 +2,8 @@ from scipy.spatial.distance import pdist
 import numpy as np
 import sys
 
+_SQRT2 = np.sqrt(2)
+
 def normalized1_lp(u,v,p=1):
     numer = abs(u-v)
     denom = abs(u)+abs(v)
@@ -19,6 +21,9 @@ def normalized2_lp(u,v,p=1):
                    out   = np.zeros(v.shape),
                    where = denom!=0)
     return np.linalg.norm(vector, p)
+
+def hellinger(p, q):
+    return np.sqrt(np.sum((np.sqrt(p) - np.sqrt(q)) ** 2)) / _SQRT2
 
 
 def GDV_similarity(u,v):
