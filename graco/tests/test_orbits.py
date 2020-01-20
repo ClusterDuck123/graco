@@ -1,6 +1,7 @@
 import os
 import graco
 import unittest
+import numpy as np
 import pandas as pd
 import networkx as nx
 
@@ -21,6 +22,15 @@ class TestOrca(unittest.TestCase):
 
         pd.testing.assert_frame_equal(GDV1.sort_index(axis=0),
                                       GDV2.sort_index(axis=0))
+
+class TestGCV(unittest.TestCase):
+    def setUp(self):
+        self.G   = nx.erdos_renyi_graph(2**9,0.05)
+        self.GCV = graco.coefficients(self.G)
+
+    def test_convexity(self):
+        for eq in set(zip(*map(self.GCV.columns.get_level_values, [0,1]))):
+            assert np.isclose(self.GCV[eq].dropna().sum(axis=1), 1).all()
 
 
 if __name__ == '__main__':

@@ -72,14 +72,13 @@ def distance_matrix(M, dist):
 
 
 def GCV_distance(GCV, distance, nan='include'):
-    D_all   = pd.DataFrame(0, index=GCV.index, columns=GCV.index)
-    Divisor = pd.DataFrame(0, index=GCV.index, columns=GCV.index)
-
     if nan == 'include':
         if type(GCV.columns) == pd.MultiIndex:
+            D_all   = pd.DataFrame(0, index=GCV.index, columns=GCV.index)
+            Divisor = pd.DataFrame(0, index=GCV.index, columns=GCV.index)
             depth = len(GCV.columns.levels)
 
-            for eq in set(GCV.columns.droplevel([depth-1])):
+            for eq in GCV.columns.droplevel([depth-1]).unique():
 
                 length = len(GCV[eq].T)
                 gcv = GCV[eq].dropna()
@@ -89,13 +88,26 @@ def GCV_distance(GCV, distance, nan='include'):
                 assert (GCV[eq].isna().any(axis=1) == GCV[eq].isna().all(axis=1)).all()
                 assert len(nan_indices) + len(not_nan_indices) == len(GCV)
 
-                D_i = graco.distance_matrix(gcv, distance)
-                D_all.loc[not_nan_indices,not_nan_indices] += D_i / \
-                                                normalizer(distance,length)
+                D_sub = graco.distance_matrix(gcv, distance)
+                D_all.loc[not_nan_indices,not_nan_indices] += \
+                                            D_sub / normalizer(distance,length)
                 Divisor.loc[not_nan_indices,not_nan_indices] += 1
 
             return D_all / Divisor
         else:
-            raise Exception
+            D = pd.DataFrame(np.nan, index   = GCV.index,
+                                     columns = GCV.index)
+            length = len(GCV.T)
+            gcv = GCV.dropna()
+            not_nan_indices = gcv.index
+            nan_indices = GCV.index[GCV.isna().any(axis=1)]
+
+            assert (GCV.isna().any(axis=1) == GCV.isna().all(axis=1)).all()
+            assert len(nan_indices) + len(not_nan_indices) == len(GCV)
+
+            D_sub = graco.distance_matrix(gcv, distance)
+            D.loc[not_nan_indices,not_nan_indices] = \
+                                            D_sub / normalizer(distance,length)
+            return D
     else:
         raise Exception
