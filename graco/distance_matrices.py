@@ -28,7 +28,9 @@ def write_matrix(filename, M, fmt):
 def GDV_similarity(M):
     if type(M) == pd.DataFrame:
         M = M.values
-    if   M.dtype == int:
+    else:
+        raise Exception(f"Datatype not understood. {type(M)}")
+    if M.dtype == int:
         timestamp = time.time()
         matrix_in  = f"{TMP_PATH}/{timestamp}.in"
         matrix_out = f"{TMP_PATH}/{timestamp}.out"
@@ -37,7 +39,7 @@ def GDV_similarity(M):
         run_cmd(cmd)
         return np.loadtxt(matrix_out)
     else:
-        raise Exception("Datatype not understood.")
+        raise Exception(f"Datatype not integer. {M.dtype}")
 
 
 def normalized1_lp(M, p=1):
