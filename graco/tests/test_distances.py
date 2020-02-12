@@ -9,6 +9,10 @@ import numpy as np
 #                              Distance Functions
 # ============================================================================
 
+all_distances = ['euclidean', 'cityblock', 'sqeuclidean',
+                 'cosine', 'correlation', 'chebyshev',
+                 'canberra', 'braycurtis']
+
 class TestIntCompabilities(unittest.TestCase):
     def setUp(self):
         self.u = np.random.randint(100,size=15)
@@ -47,9 +51,7 @@ class TestIntCompabilities(unittest.TestCase):
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
     def test_int_pdist(self):
-        for distance in ['euclidean', 'cityblock', 'sqeuclidean',
-                         'cosine', 'correlation', 'chebyshev',
-                         'canberra', 'braycurtis']:
+        for distance in all_distances:
             d2 = graco.distance(self.u,self.v, distance)
             d1 = float(pdist([self.u,self.v], distance))
             np.testing.assert_almost_equal(d1, d2, decimal=4)
@@ -89,13 +91,28 @@ class TestFloatCompabilities(unittest.TestCase):
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
     def test_float_pdist(self):
-        for distance in ['euclidean', 'cityblock', 'sqeuclidean',
-                         'cosine', 'correlation', 'chebyshev',
-                         'canberra', 'braycurtis']:
+        for distance in all_distances:
             d2 = graco.core.distance(self.u,self.v, distance)
             d1 = float(pdist([self.u,self.v], distance))
             np.testing.assert_almost_equal(d1, d2, decimal=4)
 
+
+class TestGCVDistance(unittest.TestCase):
+    def setUp(self):
+        self.GDV = np.array([
+        #                    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14
+                            [2, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                            [2, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                            [3, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                            [1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+                            ])
+
+        self.GCV = graco.coefficients(self.GDV)
+
+    def test_against_dummy_node(self):
+        pass
+
+#     INCOMPLETE !!!
 
 if __name__ == '__main__':
     unittest.main()

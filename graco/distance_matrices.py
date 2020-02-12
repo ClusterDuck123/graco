@@ -28,8 +28,6 @@ def write_matrix(filename, M, fmt):
 def GDV_similarity(M):
     if type(M) == pd.DataFrame:
         M = M.values
-    else:
-        raise Exception(f"Datatype not understood. {type(M)}")
     if M.dtype == int:
         timestamp = time.time()
         matrix_in  = f"{TMP_PATH}/{timestamp}.in"

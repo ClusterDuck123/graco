@@ -81,7 +81,9 @@ class Calculate:
     @staticmethod
     def coefficients(G, dtype=pd.DataFrame):
         if   type(G) == pd.DataFrame:
-            GDV=G
+            GDV = G
+        elif type(G) == np.ndarray:
+            GDV = pd.DataFrame(G, columns=map(str,range(15)))
         elif type(G) == nx.Graph:
             GDV = Calculate.orbits(G)
         else:
