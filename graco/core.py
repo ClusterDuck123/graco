@@ -4,6 +4,27 @@ import graco
 import numpy as np
 import pandas as pd
 
+def _get_value(value, coeffs):
+    if   value == 'barycenter':
+        return 1/len(coeffs.T)
+    elif value == 'mean':
+        return coeffs.mean()
+    else:
+        return value
+
+def fill_nan(GCV, value='barycenter'):
+
+    lowest_two_levels = list(range(GCV.columns.nlevels-1))
+
+    if not lowest_two_levels:
+#       CALCULATE WITHOUT LOOP
+        pass
+    else:
+        for eq, coeffs in GCV.groupby(
+                                level = lowest_two_levels,
+                                axis  = 1):
+            GCV.loc[:,eq] = coeffs.fillna(_get_value(value,coeffs))
+
 def normalizer(distance, length):
     if   distance == 'normalized1_l1'  : return length
     elif distance == 'normalized1_l2'  : return np.sqrt(length)

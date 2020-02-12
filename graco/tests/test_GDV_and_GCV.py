@@ -13,7 +13,7 @@ DATA_PATH   = f"{GRACO_PATH}/tests/data"
 # ============================================================================
 
 class TestOrca(unittest.TestCase):
-    def test_orca(self):
+    def test_against_golden_standard(self):
         GDV1 = pd.read_csv(f"{DATA_PATH}/golden_GDV.txt", index_col=0)
         GDV1.columns.name = 'Orbit'
 
