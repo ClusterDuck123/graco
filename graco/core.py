@@ -39,74 +39,87 @@ def fill_nan(GCV, value='barycenter'):
                                 axis  = 1):
             GCV.loc[:,eq] = coeffs.fillna(_get_value(value,coeffs))
 
-def normalizer(distance, length):
-    if   distance == 'normalized1_l1'  : return length
-    elif distance == 'normalized1_l2'  : return np.sqrt(length)
-    elif distance == 'normalized1_linf': return 1
+def normalizer(metric, length):
+    if   metric == 'normalized1_l1'  : return length
+    elif metric == 'normalized1_l2'  : return np.sqrt(length)
+    elif metric == 'normalized1_linf': return 1
 
-    elif distance == 'normalized2_l1'  : return length
-    elif distance == 'normalized2_l2'  : return np.sqrt(2)
-    elif distance == 'normalized2_linf': return 1
+    elif metric == 'normalized2_l1'  : return length
+    elif metric == 'normalized2_l2'  : return np.sqrt(2)
+    elif metric == 'normalized2_linf': return 1
 
-    elif distance == 'cityblock'   : return 2
-    elif distance == 'euclidean'   : return np.sqrt(2)
-    elif distance == 'sqeuclidean' : return 2
-    elif distance == 'chebyshev'   : return 1
+    elif metric == 'cityblock'   : return 2
+    elif metric == 'euclidean'   : return np.sqrt(2)
+    elif metric == 'sqeuclidean' : return 2
+    elif metric == 'chebyshev'   : return 1
 
-    elif distance == 'cosine'      : return 1
-    elif distance == 'correlation' : return 2
+    elif metric == 'cosine'      : return 1
+    elif metric == 'correlation' : return 2
 
-    elif distance == 'canberra'   : return length
-    elif distance == 'braycurtis' : return 1
+    elif metric == 'canberra'   : return length
+    elif metric == 'braycurtis' : return 1
 
-    elif distance == 'mahalanobis': return 1
-    elif distance == 'seuclidean' : return 1
+    elif metric == 'mahalanobis': return 1
+    elif metric == 'seuclidean' : return 1
 
-    elif distance == 'hellinger' : return 1
+    elif metric == 'hellinger' : return 1
 
-def distance(u,v, dist):
-    if   dist.startswith('normalized1_l'):
-        p = dist.split('normalized1_l')[1]
+def distance(u,v, metric):
+    if   metric.startswith('normalized1_l'):
+        p = metric.split('normalized1_l')[1]
         if p == 'inf':
             return graco.distances.normalized1_lp(u,v, p = np.inf)
         else:
             return graco.distances.normalized1_lp(u,v, p = int(p))
-    elif dist.startswith('normalized2_l'):
-        p = dist.split('normalized2_l')[1]
+    elif metric.startswith('normalized2_l'):
+        p = metric.split('normalized2_l')[1]
         if p == 'inf':
             return graco.distances.normalized2_lp(u,v, p = np.inf)
         else:
             return graco.distances.normalized2_lp(u,v, p = int(p))
-    elif dist == 'GDV_similarity':
+    elif metric == 'GDV_similarity':
         return graco.distances.GDV_similarity(u,v)
-    elif dist == 'hellinger':
+    elif metric == 'hellinger':
         return graco.distances.hellinger(u,v)
     else:
-        return float(pdist([u,v], dist))
+        return float(pdist([u,v], metric))
+
+def convex_distance(u,v,metric):
+    """
+    Normalized distance of two convex vectors (function asserts this).
+    Not suited for NaN entries.
+    """
+
+    assert sum(u) == 1
+    assert sum(v) == 1
+
+    return distance(u,v,metric) / normalizer(metric, len(u))
 
 
-def distance_matrix(M, dist):
-    if   dist.startswith('normalized1_l'):
-        p = dist.split('normalized1_l')[1]
+def distance_matrix(M, metric):
+    if   metric.startswith('normalized1_l'):
+        p = metric.split('normalized1_l')[1]
         if p == 'inf':
             return graco.distance_matrices.normalized1_lp(M, p = np.inf)
         else:
             return graco.distance_matrices.normalized1_lp(M, p = int(p))
-    elif dist.startswith('normalized2_l'):
-        p = dist.split('normalized2_l')[1]
+    elif metric.startswith('normalized2_l'):
+        p = metric.split('normalized2_l')[1]
         if p == 'inf':
             return graco.distance_matrices.normalized2_lp(M, p = np.inf)
         else:
             return graco.distance_matrices.normalized2_lp(M, p = int(p))
-    elif dist == 'GDV_similarity':
+    elif metric == 'GDV_similarity':
         return graco.distance_matrices.GDV_similarity(M)
-    elif dist == 'hellinger':
+    elif metric == 'hellinger':
         return graco.distance_matrices.hellinger(M)
     else:
-        return squareform(pdist(M, dist))
+        return squareform(pdist(M, metric))
 
-def GCV_distance(u, v, distance, nan='include'):
+def GCV_distance(u, v, metric, nan='include'):
     gdv = pd.concat([u, v], axis=1).T.dropna(axis=1)
+    return np.mean([convex_distance(u[eq], v[eq], metric)
+                                                for eq in iter_equations(gdv)])
 
 def GCV_distance_matrix(GCV, distance, nan='include'):
     """
