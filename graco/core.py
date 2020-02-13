@@ -4,6 +4,20 @@ import graco
 import numpy as np
 import pandas as pd
 
+def iter_equations(GCV):
+    lowest_two_levels = list(range(GCV.columns.nlevels-1))
+    for eq, coeffs in GCV.groupby(
+                                level = lowest_two_levels,
+                                axis  = 1):
+        yield eq
+
+def iter_equation_coefficients(GCV):
+    lowest_two_levels = list(range(GCV.columns.nlevels-1))
+    for eq, coeffs in GCV.groupby(
+                                level = lowest_two_levels,
+                                axis  = 1):
+        yield eq, coeffs
+
 def _get_value(value, coeffs):
     if   value == 'barycenter':
         return 1/len(coeffs.T)
@@ -91,8 +105,10 @@ def distance_matrix(M, dist):
     else:
         return squareform(pdist(M, dist))
 
+def GCV_distance(u, v, distance, nan='include'):
+    gdv = pd.concat([u, v], axis=1).T.dropna(axis=1)
 
-def GCV_distance2(GCV, distance, nan='include'):
+def GCV_distance_matrix(GCV, distance, nan='include'):
     """
     Calculates distances equation-wise with optional parameter to controll the
     behaviour of NaNs. Carefull with 'correlation-distances', since they require
@@ -103,10 +119,7 @@ def GCV_distance2(GCV, distance, nan='include'):
             D_all   = pd.DataFrame(0, index=GCV.index, columns=GCV.index)
             Divisor = pd.DataFrame(0, index=GCV.index, columns=GCV.index)
 
-            lowest_two_levels = list(range(GCV.columns.nlevels-1))
-            for eq, coeffs in GCV.groupby(level = lowest_two_levels,
-                                          axis  = 1):
-
+            for eq, coeffs in iter_equation_coefficients(GCV):
                 gcv = coeffs.dropna()
                 if gcv.empty:
                     continue
@@ -120,51 +133,6 @@ def GCV_distance2(GCV, distance, nan='include'):
                 D_sub = graco.distance_matrix(gcv, distance)
                 D_all.loc[not_nan_indices,not_nan_indices] += \
                                             D_sub / normalizer(distance,len(gcv.T))
-                Divisor.loc[not_nan_indices,not_nan_indices] += 1
-
-            return D_all / Divisor
-        else:
-            D = pd.DataFrame(np.nan, index   = GCV.index,
-                                     columns = GCV.index)
-            length = len(GCV.T)
-            gcv = GCV.dropna()
-            not_nan_indices = gcv.index
-            nan_indices = GCV.index[GCV.isna().any(axis=1)]
-
-            assert (GCV.isna().any(axis=1) == GCV.isna().all(axis=1)).all()
-            assert len(nan_indices) + len(not_nan_indices) == len(GCV)
-
-            D_sub = graco.distance_matrix(gcv, distance)
-            D.loc[not_nan_indices,not_nan_indices] = \
-                                            D_sub / normalizer(distance,length)
-            return D
-    else:
-        raise Exception
-
-
-
-def GCV_distance(GCV, distance, nan='include'):
-    if nan == 'include':
-        if type(GCV.columns) == pd.MultiIndex:
-            D_all   = pd.DataFrame(0, index=GCV.index, columns=GCV.index)
-            Divisor = pd.DataFrame(0, index=GCV.index, columns=GCV.index)
-            depth = len(GCV.columns.levels)
-
-            for eq in GCV.columns.droplevel([depth-1]).unique():
-
-                length = len(GCV[eq].T)
-                gcv = GCV[eq].dropna()
-                if gcv.empty:
-                    continue
-                not_nan_indices = gcv.index
-                nan_indices = GCV.index[GCV[eq].isna().any(axis=1)]
-
-                assert (GCV[eq].isna().any(axis=1) == GCV[eq].isna().all(axis=1)).all()
-                assert len(nan_indices) + len(not_nan_indices) == len(GCV)
-
-                D_sub = graco.distance_matrix(gcv, distance)
-                D_all.loc[not_nan_indices,not_nan_indices] += \
-                                            D_sub / normalizer(distance,length)
                 Divisor.loc[not_nan_indices,not_nan_indices] += 1
 
             return D_all / Divisor
