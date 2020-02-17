@@ -90,8 +90,8 @@ def convex_distance(u,v,metric):
     Not suited for NaN entries.
     """
 
-    assert sum(u) == 1
-    assert sum(v) == 1
+    assert np.isclose(sum(u),1), sum(u)
+    assert np.isclose(sum(v),1), sum(v)
 
     return distance(u,v,metric) / normalizer(metric, len(u))
 

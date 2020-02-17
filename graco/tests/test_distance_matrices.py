@@ -5,6 +5,7 @@ from functools import partial
 import graco
 import unittest
 import numpy as np
+import networkx as nx
 
 
 # ============================================================================
@@ -144,6 +145,21 @@ class TestFloatCompabilities(unittest.TestCase):
             np.testing.assert_allclose(D1, D2)
             np.testing.assert_allclose(D1, D3)
             np.testing.assert_allclose(D2, D3)
+
+class TestGCVDistance(unittest.TestCase):
+    def setUp(self):
+        N = 2**5
+        m = 2
+        G = nx.barabasi_albert_graph(N,m)
+        self.GCV = graco.coefficients(G)
+
+    def test_individual_vs_all(self):
+        for metric in ['euclidean', 'canberra', 'hellinger']:
+            D1 = graco.GCV_distance_matrix(self.GCV, metric)
+            D2 = squareform([graco.GCV_distance(u, v, metric)
+                        for (_,u),(_,v) in combinations(self.GCV.iterrows(), 2)])
+            np.testing.assert_almost_equal(D1, D2, decimal=4)
+
 
 if __name__ == '__main__':
     unittest.main()
