@@ -148,13 +148,13 @@ class TestFloatCompabilities(unittest.TestCase):
 
 class TestGCVDistance(unittest.TestCase):
     def setUp(self):
-        N = 2**5
+        N = 2**4
         m = 2
         G = nx.barabasi_albert_graph(N,m)
         self.GCV = graco.coefficients(G)
 
     def test_individual_vs_all(self):
-        for metric in ['euclidean', 'canberra', 'hellinger']:
+        for metric in ['canberra', 'hellinger']:
             D1 = graco.GCV_distance_matrix(self.GCV, metric)
             D2 = squareform([graco.GCV_distance(u, v, metric)
                         for (_,u),(_,v) in combinations(self.GCV.iterrows(), 2)])

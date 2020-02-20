@@ -3,12 +3,15 @@
 """
 Created on Mon Sep 16 17:22:20 2019
 @author: clusterduck
+
+DON'T PARALLELIZE ORCA COMPUTATIONS!!!
 """
 
 import networkx as nx
 import pandas as pd
 import numpy as np
 import subprocess
+import random
 import time
 import os
 
@@ -20,6 +23,8 @@ def get_edgelist_path():
     return f"{CURRENT_PATH}/tmp/edgelist.tmp"
 def get_orbits_path():
     return f"{CURRENT_PATH}/tmp/orbits.tmp"
+def _get_timestamp():
+    return time.time()*random.random()
 
 def run_cmd(cmd):
     completed_process = subprocess.run(cmd,
@@ -32,8 +37,11 @@ def run_cmd(cmd):
 
 class Write:
     @staticmethod
-    def edgelist(G):
-        file_in  = get_edgelist_path()
+    def edgelist(G, file_in=None):
+
+        if file_in is None:
+            file_in = get_edgelist_path()
+
         nx.write_edgelist(G, file_in, data=False)
         N, M = G.number_of_nodes(), G.number_of_edges()
         with open(file_in, 'r+') as f:
@@ -42,10 +50,11 @@ class Write:
             f.write(f"{N} {M}\n" + content)
 
     @staticmethod
-    def orbits(G, file_out=None, graphlet_nodes=4):
-        Write.edgelist(G)
+    def orbits(G, file_in=None, file_out=None, graphlet_nodes=4):
+        Write.edgelist(G, file_in=file_in)
 
-        file_in  = get_edgelist_path()
+        if file_in is None:
+            file_in = get_edgelist_path()
 
         if file_out is None:
             file_out = get_orbits_path()
@@ -64,17 +73,24 @@ class Calculate:
 
         G = nx.relabel_nodes(G, label_mapping)
 
-        Write.orbits(G=G)
-        file_in = get_orbits_path()
+        timestamp = _get_timestamp()
+        file_in = f"{CURRENT_PATH}/tmp/{timestamp}.in"
+        file_out = f"{CURRENT_PATH}/tmp/{timestamp}.out"
+
+        Write.orbits(G=G, file_in=file_in, file_out=file_out)
+        GDV_arr = D = np.loadtxt(file_out, dtype=int)
+
+        os.remove(file_in)
+        os.remove(file_out)
 
         if   dtype == pd.DataFrame:
-            columnn_names = [f'{i}' for i in range(15)]
-            df = pd.read_csv(file_in, delimiter=' ', names=columnn_names)
+            columnn_names = list(map(str,range(15)))
+            df = pd.DataFrame(GDV_arr, columns=columnn_names)
             df.columns.name = 'Orbit'
             return df.rename(index=reverse_mapping)
 
         elif dtype == np.ndarray:
-            return np.genfromtxt(file_in)
+            return GDV_arr
         else:
             raise TypeError('Please provide an appropriate type.')
 
