@@ -42,7 +42,7 @@ def get_feature_matrix(feature, G_nx):
         GCV_G_sym = GCV['G'][['0-0','1-1','3-3']]
         feature_matrix = pd.concat([GCV['D'],GCV_G_sym], axis=1)
     elif feature == 'GCV-DAG':
-        feature_matrix = GCV[['D','A','G']]
+        feature_matrix = GCV[['D','A','G']].drop(('G','0-0'), axis=1)
     elif feature == 'GCV-O+':
         GCV_3 = GCV[['A','D']].xs('0', axis=1, level='Equation')
         feature_matrix = pd.concat([GCV['O'],GCV_3], axis=1)
@@ -67,9 +67,9 @@ if __name__ == '__main__':
     from itertools import product
     from multiprocessing import Pool
 
- # Global constants
-    N_CORES = None
+    print(os.cpu_count())
 
+ # Global constants
     DATA_DIRECTORY = "/media/clusterduck123/joe/data"
     YEAST_DIRECTORY = f"{DATA_DIRECTORY}/processed_data/yeast"
     NETWORK_DIRECTORY = f"{YEAST_DIRECTORY}/networks"
@@ -82,10 +82,8 @@ if __name__ == '__main__':
 
  # Define necessary directories
     for network, feature in product(networks, features):
-        if not os.path.exists(f"{MATRIX_DIRECTORY}/{network}"):
-            os.makedirs(f"{MATRIX_DIRECTORY}/{network}/")
         if not os.path.exists(f"{MATRIX_DIRECTORY}/{network}/{feature}"):
             os.makedirs(f"{MATRIX_DIRECTORY}/{network}/{feature}/")
 
-    with Pool(N_CORES) as p:
+    with Pool() as p:
         p.starmap(main,product(networks, features, metrics))
