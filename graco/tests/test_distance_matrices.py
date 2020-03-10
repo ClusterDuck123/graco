@@ -79,7 +79,8 @@ class TestIntCompabilities(unittest.TestCase):
 
 class TestFloatCompabilities(unittest.TestCase):
     def setUp(self):
-        self.GCV = np.random.uniform(size=[100,4])
+        M = np.random.uniform(size=[100,4])
+        self.GCV = (M.T / M.sum(axis=1)).T
 
     def test_float_lormalized1_lp(self):
         p = np.random.randint(1,10)

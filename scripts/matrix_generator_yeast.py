@@ -67,7 +67,7 @@ if __name__ == '__main__':
     from itertools import product
     from multiprocessing import Pool
 
-    print(os.cpu_count())
+    print('Number of available cores:', os.cpu_count())
 
  # Global constants
     DATA_DIRECTORY = "/media/clusterduck123/joe/data"
@@ -76,9 +76,9 @@ if __name__ == '__main__':
     MATRIX_DIRECTORY  = f"{YEAST_DIRECTORY}/distance_matrices"
 
  # Input parameters
-    networks = {'systematic_PPI_BioGRID', 'systematic_CoEx_COEXPRESdb'}
-    features = {'GCV-O+', 'GDV'}
-    metrics  = {'canberra', 'cityblock'}
+    with open("input_parameters.py") as f:
+        for line in f:
+            exec(line.strip())
 
  # Define necessary directories
     for network, feature in product(networks, features):

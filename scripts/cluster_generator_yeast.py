@@ -1,6 +1,7 @@
 from pyclustering.cluster.kmedoids import kmedoids
 
 import os
+import sys
 import random
 import numpy as np
 import pandas as pd
@@ -13,9 +14,9 @@ Takes network, feature and metric as input and calculates distance matrix.
 #  ---------------------------- GLOBAL PARAMETERS ----------------------------
 # =============================================================================
 
-RUN = 3
-MIN_CLUSTERS = 2
-MAX_CLUSTERS = 10
+RUN = sys.argv[1]
+MIN_CLUSTERS = 40
+MAX_CLUSTERS = 50
 
 # =============================================================================
 #  -------------------------------- FUNCTIONS --------------------------------
@@ -57,10 +58,9 @@ if __name__ == '__main__':
     MATRIX_DIRECTORY  = f"{YEAST_DIRECTORY}/distance_matrices"
 
  # Input parameters
-    networks = {'systematic_PPI_BioGRID', 'systematic_CoEx_COEXPRESdb'}
-    features = {'GCV-O+', 'GDV'}
-    metrics  = {'canberra'}
-    methods   = {'kmedoid'}
+    with open("input_parameters.py") as f:
+        for line in f:
+            exec(line.strip())
 
  # Define necessary directories
     for network, feature, metric, method in product(networks, features, metrics, methods):

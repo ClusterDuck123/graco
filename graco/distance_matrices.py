@@ -124,6 +124,7 @@ def normalized2_lp(M, p=1):
 def hellinger(M):
     if type(M) == pd.DataFrame:
         M = M.values
+    M = (M.T / M.sum(axis=1)).T
 
     timestamp = _get_timestamp()
     matrix_in  = f"{TMP_PATH}/hell{timestamp}.in"
