@@ -23,28 +23,6 @@ class TestIntCompabilities(unittest.TestCase):
         d2 = graco.distance(self.u,self.v, 'GDV_similarity')
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
-    def test_int_normalized1_lp(self):
-        p = np.random.randint(1,10)
-        d1 = graco.distances.normalized1_lp(self.u,self.v,p)
-        d2 = graco.distance(self.u,self.v, 'normalized1_l' + str(p))
-        np.testing.assert_almost_equal(d1, d2, decimal=4)
-
-    def test_int_normalized1_linf(self):
-        d1 = graco.distances.normalized1_lp(self.u,self.v,np.inf)
-        d2 = graco.distance(self.u,self.v, 'normalized1_linf')
-        np.testing.assert_almost_equal(d1, d2, decimal=4)
-
-    def test_int_normalized2_lp(self):
-        p = np.random.randint(1,10)
-        d1 = graco.distances.normalized2_lp(self.u,self.v,p)
-        d2 = graco.distance(self.u,self.v, 'normalized2_l' + str(p))
-        np.testing.assert_almost_equal(d1, d2, decimal=4)
-
-    def test_int_normalized2_linf(self):
-        d1 = graco.distances.normalized2_lp(self.u,self.v,np.inf)
-        d2 = graco.distance(self.u,self.v, 'normalized2_linf')
-        np.testing.assert_almost_equal(d1, d2, decimal=4)
-
     def test_int_hellinger(self):
         d1 = graco.distances.hellinger(self.u,self.v)
         d2 = graco.distance(self.u,self.v, 'hellinger')
@@ -63,28 +41,6 @@ class TestFloatCompabilities(unittest.TestCase):
         self.u = np.random.uniform(size=n)
         self.v = np.random.uniform(size=n)
 
-    def test_float_normalized1_lp(self):
-        p = np.random.randint(1,10)
-        d1 = graco.distances.normalized1_lp(self.u,self.v,p)
-        d2 = graco.distance(self.u,self.v, 'normalized1_l' + str(p))
-        np.testing.assert_almost_equal(d1, d2, decimal=4)
-
-    def test_float_normalized1_linf(self):
-        d1 = graco.distances.normalized1_lp(self.u,self.v,np.inf)
-        d2 = graco.distance(self.u,self.v, 'normalized1_linf')
-        np.testing.assert_almost_equal(d1, d2, decimal=4)
-
-    def test_float_normalized2_lp(self):
-        p = np.random.randint(1,10)
-        d1 = graco.distances.normalized2_lp(self.u,self.v,p)
-        d2 = graco.distance(self.u,self.v, 'normalized2_l' + str(p))
-        np.testing.assert_almost_equal(d1, d2, decimal=4)
-
-    def test_float_normalized2_linf(self):
-        d1 = graco.distances.normalized2_lp(self.u,self.v,np.inf)
-        d2 = graco.distance(self.u,self.v, 'normalized2_linf')
-        np.testing.assert_almost_equal(d1, d2, decimal=4)
-
     def test_int_hellinger(self):
         d1 = graco.distances.hellinger(self.u,self.v)
         d2 = graco.distance(self.u,self.v, 'hellinger')
@@ -100,7 +56,7 @@ class TestFloatCompabilities(unittest.TestCase):
 class TestGCVDistance(unittest.TestCase):
     def setUp(self):
         self.GDV = np.array([
-        #                    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14
+                   # ORBITS  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14
                             [2, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
                             [2, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
                             [3, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],

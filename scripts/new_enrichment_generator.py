@@ -19,7 +19,7 @@ class InputParameters():
     MAX_GO = 500
     MIN_LVL = 0
     MAX_LVL = np.inf
-    CORRECTION = 'BY'
+    CORRECTION = 'BH'
 
     def __init__(self, network_name, feature, metric, method, aspect):
         self.network_name = network_name
@@ -97,10 +97,10 @@ def get_qvalue_threshold(pvalues, cluster_list, gene2GOset):
 
     m = len(sorted_pvalues) # number of tests
 
-    # (pvalue == 1) <==> (gene is not annotated)
-    assert (pvalues < 1).values.sum() ==  m
+    # (pvalue == nan) <==> (cluster not annotated in GOterm)
+    assert (~pvalues.isna()).sum().sum() == m, f"{sum(~pvalues.isna())} {m}"
 
-    if   correction == 'Bonferroni': return alpha/m
+    if   correction == 'Bonferroni': return min(alpha/m, alpha)
     elif correction == 'BH': c = 1
     elif correction == 'BY': c = np.log(m) + np.euler_gamma + 1/(2*m)
     else: raise Exception("Correction not known!")
@@ -109,7 +109,7 @@ def get_qvalue_threshold(pvalues, cluster_list, gene2GOset):
         if P_k > k/(m*c) * alpha:
             # one index shift for starting numeration with 1
             # and another one for because of overshoot in the loop
-            return sorted_pvalues[k-2]
+            return min(sorted_pvalues[k-2], alpha)
 
 
 # =============================================================================
@@ -172,14 +172,21 @@ def main(in_parms):
 # =============================================================================
 
 
-network_names = {'systematic_PPI_BioGRID', 'GI_Constanzo2016',
-                 'systematic_CoEx_COEXPRESdb'}
-features = {'GDV'}
-metrics  = {'mahalanobis', 'GDV_similarity', 'seuclidean', 'hellinger',
-            'cityblock', 'euclidean', 'chebyshev', 'canberra', 'cosine',
-            'correlation', 'braycurtis', 'sqeuclidean'}
+network_names = {'GI_Constanzo2016',
+                 #'systematic_PPI_BioGRID',
+                 #'systematic_CoEx_COEXPRESdb'
+                 }
+features = {'GCV-G'}
+metrics  = {#'mahalanobis', 'GDV_similarity', 'seuclidean', 'hellinger',
+            #'cityblock', 'euclidean',
+            #'chebyshev',
+            #'canberra', 'cosine',
+            #'correlation',
+            'braycurtis',
+            #'sqeuclidean'
+            }
 methods  = {'kmedoid'}
-aspects  = {'CC'}
+aspects  = {'BP'}
 
 loop_product = product(network_names, features, metrics, methods, aspects)
 for network_name, feature, metric, method, aspect in loop_product:

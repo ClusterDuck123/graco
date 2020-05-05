@@ -65,8 +65,8 @@ def get_pvalues(cluster_list, annotation, gene_population):
     size_of_clusters = pd.concat(n_GOterm_copies_of_cluster_sizes, axis=1).T
     size_of_clusters.index = annotation.index
 
-# sum of |(annotated) genes in cluster| across all clusters
-# == |overall (annotated) genes|
+    # sum of |(annotated) genes in cluster| across all clusters
+    # == |overall (annotated) genes|
     assert (size_of_clusters.sum(axis=1) == len(gene_population)).all()
 
 # -------------- number of success states in the population, n ----------------
@@ -82,17 +82,31 @@ def get_pvalues(cluster_list, annotation, gene_population):
     nb_annotated_genes_in_cluster.index   = annotation.index
     nb_annotated_genes_in_cluster.columns = range(n_clusters)
 
-# sum of |annotated genes per GO-term in cluster| across all clusters
-# == |annotated genes per GO-term|
+    # sum of |annotated genes per GO-term in cluster| across all clusters
+    # == |annotated genes per GO-term|
     assert (nb_annotated_genes_in_cluster.sum(axis=1) == annotation.apply(len)).all()
 
-# ------------ all of this just to execute a single scipy function ------------
-    return pd.DataFrame(1-hypergeom.cdf(M = nb_of_annoteted_genes.values,
+# ------------ all of this just to execute a single scipy function -------------
+    pvalues = pd.DataFrame(1-hypergeom.cdf(M = nb_of_annoteted_genes.values,
                                         N = size_of_clusters.values,
                                         n = nb_annotated_genes.values,
                                         k = nb_annotated_genes_in_cluster.values-1),
-                        index = annotation.index)
+                        index=annotation.index)
 
+    # set pvalues of unannotated cluster in GOterm to nan for assertion checks
+    pvalues[nb_annotated_genes_in_cluster == 0] = np.nan
+    return pvalues
+
+
+def assert_nan_values(pvalues, cluster_list, gene2GOset):
+    for cluster_idx in pvalues.columns:
+        if len(cluster_list[cluster_idx]) == 0:
+            assert (pvalues[cluster_idx].isna()).all()
+        else:
+            GOterms_in_cluster = set.union(*map(gene2GOset.get, cluster_list[cluster_idx]))
+            for GOterm in pvalues.index:
+                if not GOterm in GOterms_in_cluster:
+                    assert np.isnan(pvalues[cluster_idx][GOterm])
 
 # =============================================================================
 #  ----------------------------------- MAIN -----------------------------------
@@ -113,12 +127,12 @@ def main(in_parms):
 
     GO2geneset_s = pd.Series(GO2geneset).sort_index()
 
-    # ------------ unrelated statistics: number of un-annotated genes -------------
+# ------------ unrelated statistics: number of un-annotated genes -------------
     nb_unannotated_genes = len(network_nx)-len(annotated_geneset)
     print(f"Network has {len(network_nx)} genes, of which {nb_unannotated_genes} "
           f"({100*nb_unannotated_genes/len(network_nx):.2f}%) are un-annotated.")
 
-    # ----------------------- this is where the fun starts ------------------------
+# ----------------------- this is where the fun starts ------------------------
     N = len(network_nx)
     M = int(np.sqrt(N/2))
 
@@ -126,20 +140,15 @@ def main(in_parms):
         with open(f"{Paths(in_parms).CLUSTER_DIRECTORY}/{RUN}_{n_clusters}.txt", 'r') as f:
                      cluster_list = [set(line.split()) for line in f]
 
-    # keep only annotated genes in cluster
+        # keep only annotated genes in cluster
         annotated_cluster_list = [gene_set & annotated_geneset for gene_set in cluster_list]
 
         pvalues = get_pvalues(cluster_list    = annotated_cluster_list,
                               annotation      = GO2geneset_s,
                               gene_population = annotated_geneset)
 
-    # assert that un-annotated genes hava a p-value of 1
-        for idx, cluster in enumerate(annotated_cluster_list):
-            if len(cluster) == 0:
-                assert (pvalues[idx] == 1).all()
-            else:
-                indices = set.union(*map(gene2GOset.get, cluster))
-                assert (pvalues.loc[~pvalues.index.isin(indices)][idx] == 1).all()
+        # assert that un-annotated GO-terms have a p-value of nan
+        assert_nan_values(pvalues, annotated_cluster_list, gene2GOset)
 
         pvalues.to_csv(f"{Paths(in_parms).PVALUE_DIRECTORY}/{RUN}_{n_clusters}.txt")
 
@@ -147,14 +156,19 @@ def main(in_parms):
 #  ----------------------------------- INIT -----------------------------------
 # =============================================================================
 
-network_names = {'systematic_PPI_BioGRID', 'GI_Constanzo2016',
-                 'systematic_CoEx_COEXPRESdb'}
-features = {'GDV'}
-metrics  = {'mahalanobis', 'GDV_similarity', 'seuclidean', 'hellinger',
-            'cityblock', 'euclidean', 'chebyshev', 'canberra', 'cosine',
-            'correlation', 'braycurtis', 'sqeuclidean'}
+network_names = {'GI_Constanzo2016',
+                 #'systematic_PPI_BioGRID',
+                 #'systematic_CoEx_COEXPRESdb'
+                 }
+features = {'GCV-O+'}
+metrics  = {#'mahalanobis', 'GDV_similarity', 'seuclidean', 'hellinger',
+            #'cityblock', 'euclidean',
+            'chebyshev',
+            #'canberra', 'cosine',
+            #'correlation', 'braycurtis', 'sqeuclidean'
+            }
 methods  = {'kmedoid'}
-aspects  = {'MF'}
+aspects  = {'MF','BP','CC'}
 
 loop_product = product(network_names, features, metrics, methods, aspects)
 for network_name, feature, metric, method, aspect in loop_product:

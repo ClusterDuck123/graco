@@ -26,44 +26,6 @@ class TestIntCompabilities(unittest.TestCase):
         np.testing.assert_almost_equal(D1, D3, decimal=4)
         np.testing.assert_almost_equal(D2, D3, decimal=4)
 
-    def test_int_lormalized1_lp(self):
-        p = np.random.randint(1,10)
-        D1 = graco.distance_matrices.normalized1_lp(self.GDV,p)
-        D2 = graco.distance_matrix(self.GDV, 'normalized1_l' + str(p))
-        D3 = squareform([graco.distances.normalized1_lp(u,v,p)
-                        for u,v in combinations(self.GDV,2)])
-
-        np.testing.assert_almost_equal(D1, D2, decimal=4)
-        np.testing.assert_almost_equal(D1, D3, decimal=4)
-        np.testing.assert_almost_equal(D2, D3, decimal=4)
-
-    def test_int_lormalized1_linf(self):
-        D1 = graco.distance_matrices.normalized1_lp(self.GDV, np.inf)
-        D2 = graco.distance_matrix(self.GDV, 'normalized1_linf')
-        D3 = squareform([graco.distances.normalized1_lp(u,v, np.inf)
-                        for u,v in combinations(self.GDV,2)])
-
-    def test_int_lormalized2_lp(self):
-        p = np.random.randint(1,10)
-        D1 = graco.distance_matrices.normalized2_lp(self.GDV,p)
-        D2 = graco.distance_matrix(self.GDV, 'normalized2_l' + str(p))
-        D3 = squareform([graco.distances.normalized2_lp(u,v,p)
-                        for u,v in combinations(self.GDV,2)])
-
-        np.testing.assert_allclose(D1, D2, rtol=1e-05)
-        np.testing.assert_allclose(D1, D3, rtol=1e-05)
-        np.testing.assert_allclose(D2, D3, rtol=1e-05)
-
-    def test_int_lormalized2_linf(self):
-        D1 = graco.distance_matrices.normalized2_lp(self.GDV, np.inf)
-        D2 = graco.distance_matrix(self.GDV, 'normalized2_linf')
-        D3 = squareform([graco.distances.normalized2_lp(u,v, np.inf)
-                        for u,v in combinations(self.GDV,2)])
-
-        np.testing.assert_almost_equal(D1, D2, decimal=4)
-        np.testing.assert_almost_equal(D1, D3, decimal=4)
-        np.testing.assert_almost_equal(D2, D3, decimal=4)
-
     def test_int_pdist(self):
         for distance in ['euclidean', 'cityblock', 'sqeuclidean',
                          'cosine', 'correlation', 'chebyshev',
@@ -81,48 +43,6 @@ class TestFloatCompabilities(unittest.TestCase):
     def setUp(self):
         M = np.random.uniform(size=[100,4])
         self.GCV = (M.T / M.sum(axis=1)).T
-
-    def test_float_lormalized1_lp(self):
-        p = np.random.randint(1,10)
-        D1 = graco.distance_matrices.normalized1_lp(self.GCV,p)
-        D2 = graco.distance_matrix(self.GCV, 'normalized1_l' + str(p))
-        D3 = squareform([graco.distances.normalized1_lp(u,v,p)
-                        for u,v in combinations(self.GCV,2)])
-
-        np.testing.assert_almost_equal(D1, D2, decimal=4)
-        np.testing.assert_almost_equal(D1, D3, decimal=4)
-        np.testing.assert_almost_equal(D2, D3, decimal=4)
-
-    def test_float_lormalized1_linf(self):
-        D1 = graco.distance_matrices.normalized1_lp(self.GCV, np.inf)
-        D2 = graco.distance_matrix(self.GCV, 'normalized1_linf')
-        D3 = squareform([graco.distances.normalized1_lp(u,v, np.inf)
-                        for u,v in combinations(self.GCV,2)])
-
-        np.testing.assert_almost_equal(D1, D2, decimal=4)
-        np.testing.assert_almost_equal(D1, D3, decimal=4)
-        np.testing.assert_almost_equal(D2, D3, decimal=4)
-
-    def test_float_lormalized2_lp(self):
-        p = np.random.randint(1,10)
-        D1 = graco.distance_matrices.normalized2_lp(self.GCV,p)
-        D2 = graco.distance_matrix(self.GCV, 'normalized2_l' + str(p))
-        D3 = squareform([graco.distances.normalized2_lp(u,v,p)
-                        for u,v in combinations(self.GCV,2)])
-
-        np.testing.assert_almost_equal(D1, D2, decimal=4)
-        np.testing.assert_almost_equal(D1, D3, decimal=4)
-        np.testing.assert_almost_equal(D2, D3, decimal=4)
-
-    def test_float_lormalized2_linf(self):
-        D1 = graco.distance_matrices.normalized2_lp(self.GCV, np.inf)
-        D2 = graco.distance_matrix(self.GCV, 'normalized2_linf')
-        D3 = squareform([graco.distances.normalized2_lp(u,v, np.inf)
-                        for u,v in combinations(self.GCV,2)])
-
-        np.testing.assert_almost_equal(D1, D2, decimal=4)
-        np.testing.assert_almost_equal(D1, D3, decimal=4)
-        np.testing.assert_almost_equal(D2, D3, decimal=4)
 
     def test_float_hellinger(self):
         D1 = graco.distance_matrices.hellinger(self.GCV)

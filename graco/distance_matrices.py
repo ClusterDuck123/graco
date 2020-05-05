@@ -38,6 +38,10 @@ def GDV_similarity(M):
         matrix_out = f"{TMP_PATH}/{timestamp}.out"
         write_matrix(matrix_in, M, fmt='%d')
         cmd = [f"{CPP_PATH}/int_GDV-similarity", matrix_in, matrix_out]
+        print()
+        print('-------------------------------------------')
+        print(cmd)
+        print('-------------------------------------------')
         run_cmd(cmd)
         D_arr = np.loadtxt(matrix_out)
 
@@ -58,6 +62,10 @@ def normalized1_lp(M, p=1):
         matrix_out = f"{TMP_PATH}/{timestamp}.out"
         write_matrix(matrix_in, M, fmt='%d')
         if p == np.inf: p = 0
+        print()
+        print('-------------------------------------------')
+        print(cmd)
+        print('-------------------------------------------')
         cmd = [f"{CPP_PATH}/int_normalized1_lp", str(p), matrix_in, matrix_out]
         run_cmd(cmd)
 

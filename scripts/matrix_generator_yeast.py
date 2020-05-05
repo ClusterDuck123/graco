@@ -43,6 +43,9 @@ def get_feature_matrix(feature, G_nx):
         feature_matrix = pd.concat([GCV['D'],GCV_G_sym], axis=1)
     elif feature == 'GCV-DAG':
         feature_matrix = GCV[['D','A','G']].drop(('G','0-0'), axis=1)
+    elif feature == 'GCV-DAG-reduced':
+        G_red = [('G','0-0'), ('G','1-2'), ('G','2-1'), ('G', '3-3')]
+        feature_matrix = GCV[['D','A','G']].drop(G_red, axis=1)
     elif feature == 'GCV-O+':
         GCV_3 = GCV[['A','D']].xs('0', axis=1, level='Equation')
         feature_matrix = pd.concat([GCV['O'],GCV_3], axis=1)
