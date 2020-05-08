@@ -38,6 +38,10 @@ def get_feature_matrix(feature, G_nx):
         feature_matrix = GCV[['D','A']]
     elif feature == 'GCV-DG':
         feature_matrix = GCV[['D','G']]
+    elif feature == 'GCV-DG-2':
+        feature_matrix = GCV[['D','G']].drop(('G','2-1'), axis=1)
+    elif feature == 'GCV-DG-3':
+        feature_matrix = GCV[['D','G']].drop(('G','3-3'), axis=1)
     elif feature == 'GCV-DG-sym':
         GCV_G_sym = GCV['G'][['0-0','1-1','3-3']]
         feature_matrix = pd.concat([GCV['D'],GCV_G_sym], axis=1)
@@ -61,7 +65,7 @@ def main(network, feature, metric):
  # Start of computations
     G_nx = nx.read_edgelist(f"{NETWORK_DIRECTORY}/{network}.txt")
     feature_matrix = get_feature_matrix(feature, G_nx)
-    D_arr = graco.distance_matrix(feature_matrix, metric)
+    D_arr = graco.GCV_distance_matrix(feature_matrix, metric)
 
     np.savetxt(f"{MATRIX_DIRECTORY}/{network}/{feature}/{metric}.txt", D_arr,
            fmt='%.7f', header=' '.join(G_nx), comments='')

@@ -14,12 +14,32 @@ import networkx as nx
 
 class TestIntCompabilities(unittest.TestCase):
     def setUp(self):
-        self.GDV = np.random.randint(2**62, size=[100,15])
+        self.GDV = np.random.randint(2**59, size=[50,15])
 
     def test_int_GDV_similarity(self):
         D1 = graco.distance_matrices.GDV_similarity(self.GDV)
         D2 = graco.distance_matrix(self.GDV, 'GDV_similarity')
         D3 = squareform([graco.distances.GDV_similarity(u,v)
+                        for u,v in combinations(self.GDV,2)])
+
+        np.testing.assert_almost_equal(D1, D2, decimal=4)
+        np.testing.assert_almost_equal(D1, D3, decimal=4)
+        np.testing.assert_almost_equal(D2, D3, decimal=4)
+
+    def test_int_hellinger(self):
+        D1 = graco.distance_matrices.hellinger(self.GDV)
+        D2 = graco.distance_matrix(self.GDV, 'hellinger')
+        D3 = squareform([graco.distances.hellinger(u,v)
+                        for u,v in combinations(self.GDV,2)])
+
+        np.testing.assert_almost_equal(D1, D2, decimal=4)
+        np.testing.assert_almost_equal(D1, D3, decimal=4)
+        np.testing.assert_almost_equal(D2, D3, decimal=4)
+
+    def test_js_divergence(self):
+        D1 = graco.distance_matrices.js_divergence(self.GDV)
+        D2 = graco.distance_matrix(self.GDV, 'js_divergence')
+        D3 = squareform([graco.distances.js_divergence(u,v)
                         for u,v in combinations(self.GDV,2)])
 
         np.testing.assert_almost_equal(D1, D2, decimal=4)
@@ -41,7 +61,7 @@ class TestIntCompabilities(unittest.TestCase):
 
 class TestFloatCompabilities(unittest.TestCase):
     def setUp(self):
-        M = np.random.uniform(size=[100,4])
+        M = np.random.uniform(size=[60,4])
         self.GCV = (M.T / M.sum(axis=1)).T
 
     def test_float_hellinger(self):
@@ -69,7 +89,7 @@ class TestFloatCompabilities(unittest.TestCase):
 
 class TestGCVDistance(unittest.TestCase):
     def setUp(self):
-        N = 2**4
+        N = 10
         m = 2
         G = nx.barabasi_albert_graph(N,m)
         self.GCV = graco.coefficients(G)

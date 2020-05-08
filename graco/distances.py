@@ -4,26 +4,26 @@ import sys
 
 _SQRT2 = np.sqrt(2)
 
-def normalized1_lp(u,v,p=1):
-    numer = abs(u-v)
-    denom = abs(u)+abs(v)
-    vector = np.divide(numer, denom,
-                   out   = np.zeros(v.shape),
-                   where = denom!=0)
-    return np.linalg.norm(vector, p)
-
-def normalized2_lp(u,v,p=1):
-    if p == np.inf:
-        return np.linalg.norm(np.abs(u-v), np.inf)
-    numer = abs(u-v)
-    denom = (abs(u)+abs(v))**(1/p)
-    vector = np.divide(numer, denom,
-                   out   = np.zeros(v.shape),
-                   where = denom!=0)
-    return np.linalg.norm(vector, p)
-
 def hellinger(p, q):
-    return np.sqrt(np.sum((np.sqrt(p) - np.sqrt(q)) ** 2)) / _SQRT2
+    p = p/np.sum(p)
+    q = q/np.sum(q)
+    tmp = np.sum((np.sqrt(p) - np.sqrt(q)) ** 2)
+    return np.sqrt(tmp) / _SQRT2
+
+def js_divergence(p,q):
+    p = p/np.sum(p)
+    q = q/np.sum(q)
+    m = (p+q)/2
+
+    log_arg1 = np.true_divide(p,m, out   = np.ones_like(p),
+                                   where = p!=0)
+    log_arg2 = np.true_divide(q,m, out   = np.ones_like(q),
+                                   where = q!=0)
+
+    log1 = np.log(log_arg1)
+    log2 = np.log(log_arg2)
+
+    return np.sum(p*log1 +q*log2)/(2*np.log(2))
 
 
 def GDV_similarity(u,v):

@@ -28,6 +28,11 @@ class TestIntCompabilities(unittest.TestCase):
         d2 = graco.distance(self.u,self.v, 'hellinger')
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
+    def test_int_js_divergenceself(self):
+        d1 = graco.distances.js_divergence(self.u,self.v)
+        d2 = graco.distance(self.u,self.v, 'js_divergence')
+        np.testing.assert_almost_equal(d1, d2, decimal=4)
+
     def test_int_pdist(self):
         for distance in all_distances:
             d2 = graco.distance(self.u,self.v, distance)
@@ -41,9 +46,14 @@ class TestFloatCompabilities(unittest.TestCase):
         self.u = np.random.uniform(size=n)
         self.v = np.random.uniform(size=n)
 
-    def test_int_hellinger(self):
+    def test_float_hellinger(self):
         d1 = graco.distances.hellinger(self.u,self.v)
         d2 = graco.distance(self.u,self.v, 'hellinger')
+        np.testing.assert_almost_equal(d1, d2, decimal=4)
+
+    def test_float_js_divergence(self):
+        d1 = graco.distances.js_divergence(self.u,self.v)
+        d2 = graco.distance(self.u,self.v, 'js_divergence')
         np.testing.assert_almost_equal(d1, d2, decimal=4)
 
     def test_float_pdist(self):
