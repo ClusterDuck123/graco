@@ -1,12 +1,20 @@
-from scipy.spatial.distance import pdist, squareform
+from scipy.spatial.distance import cdist, pdist, squareform
 
+import ot
 import graco
+import scipy
 import numpy as np
 import pandas as pd
 import networkx as nx
 
 def triangle_signature(G):
-    A = nx.to_scipy_sparse_matrix(G)
+    """
+    Returns clustering coefficient and community coefficient.
+    This function will ignore self-loops.
+    """
+    A = nx.to_scipy_sparse_matrix(G, format='lil')
+    A.setdiag(0)
+    A = scipy.sparse.csc_matrix(A)
     A2 = A@A
     o0 = A.sum(axis=1).A
     numer = A.multiply(A2).sum(axis=1).A
@@ -14,16 +22,30 @@ def triangle_signature(G):
     D_denom = o0*o0 - o0
     A_denom = A @o0 - o0
 
-    C_D = np.true_divide(numer, D_denom, out=np.nan*np.empty_like(numer),
-                                         where = D_denom!=0).flatten()
-    C_A = np.true_divide(numer, A_denom, out=np.nan*np.empty_like(numer),
-                                         where = A_denom!=0).flatten()
+    C_D = np.true_divide(numer, D_denom,
+                         out   = np.nan*np.empty_like(numer, dtype=float),
+                         where = D_denom!=0).flatten()
+    C_A = np.true_divide(numer, A_denom,
+                         out   = np.nan*np.empty_like(numer, dtype=float),
+                         where = A_denom!=0).flatten()
 
     return C_D, C_A
 
-def triangle_distance(G):
-    c_D, c_A = triangle_signature(G)
-    return squareform(pdist(np.array([c_D,c_A]).T))
+def emd(xs, xt, metric='euclidean'):
+    M = ot.dist(xs, xt, metric)**2
+
+    if (M == 0).all(): return 0.
+
+    M = M/M.max()
+    ns, nt = len(xs), len(xt)
+    a, b = np.ones((ns,))/ns, np.ones((nt,))/nt
+    F = ot.emd(a,b,M)
+    return np.sum(cdist(xs,xt,metric)*F) / np.sum(F)
+
+def triangle_distance(Gs, Gt, metric='euclidean'):
+    xs = np.nan_to_num(np.array(triangle_signature(Gs)).T)
+    xt = np.nan_to_num(np.array(triangle_signature(Gt)).T)
+    return emd(xs,xt, metric)
 
 def iter_equations(GCV):
     lowest_two_levels = list(range(GCV.columns.nlevels-1))
