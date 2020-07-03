@@ -43,8 +43,11 @@ def GCD11(G1, G2, metric='euclidean'):
     return distance(GCM1,GCM2,metric)
 
 def emd(xs, xt, metric='euclidean'):
-    if len(xs) > len(xt):
-        xs, xt = xt, xs
+
+    if len(xs.shape) == 1:
+            xs = xs.reshape(-1,1)
+    if len(xt.shape) == 1:
+            xt = xt.reshape(-1,1)
 
     M  = cdist(xs,xt,metric)
 
@@ -53,18 +56,10 @@ def emd(xs, xt, metric='euclidean'):
 
     M2 = M**2
 
-    for j in range(10):
-        a = np.ones(len(xs))/len(xs)
-        b = np.ones(len(xt))/len(xt)
+    a = np.ones(len(xs))/len(xs)
+    b = np.ones(len(xt))/len(xt)
 
-        F = ot.emd(a,b, M2)
-
-        if np.isclose(np.sum(F), 1):
-            break
-        else:
-            xs = np.vstack([xs,xs])
-            M  = np.vstack([M,M])
-            M2 = np.vstack([M2,M2])
+    F = ot.emd(a,b, M2)
 
     assert np.isclose(np.sum(F), 1)
 
