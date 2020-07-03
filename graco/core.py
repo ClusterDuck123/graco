@@ -31,16 +31,44 @@ def triangle_signature(G):
 
     return C_D, C_A
 
+def GDV_to_GCM11(GDV):
+    GCM11 = GDV.loc[:, map(str,set(range(15)) - {3,12,13,14})]
+    GCM11.loc['NULL'] = 1.
+    return GCM11
+
+def GCD11(G1, G2, metric='euclidean'):
+    GDV1, GDV2 = graco.orbits(G1)  , graco.orbits(G2)
+    GCM1 = squareform(GDV_to_GCM11(GDV1).corr(), checks=False)
+    GCM2 = squareform(GDV_to_GCM11(GDV2).corr(), checks=False)
+    return distance(GCM1,GCM2,metric)
+
 def emd(xs, xt, metric='euclidean'):
-    M = ot.dist(xs, xt, metric)**2
+    if len(xs) > len(xt):
+        xs, xt = xt, xs
 
-    if (M == 0).all(): return 0.
+    M  = cdist(xs,xt,metric)
 
-    M = M/M.max()
-    ns, nt = len(xs), len(xt)
-    a, b = np.ones((ns,))/ns, np.ones((nt,))/nt
-    F = ot.emd(a,b,M)
-    return np.sum(cdist(xs,xt,metric)*F) / np.sum(F)
+    if (M == 0).all():
+        return 0.
+
+    M2 = M**2
+
+    for j in range(10):
+        a = np.ones(len(xs))/len(xs)
+        b = np.ones(len(xt))/len(xt)
+
+        F = ot.emd(a,b, M2)
+
+        if np.isclose(np.sum(F), 1):
+            break
+        else:
+            xs = np.vstack([xs,xs])
+            M  = np.vstack([M,M])
+            M2 = np.vstack([M2,M2])
+
+    assert np.isclose(np.sum(F), 1)
+
+    return np.sum(M*F)
 
 def triangle_distance(Gs, Gt, metric='euclidean'):
     xs = np.nan_to_num(np.array(triangle_signature(Gs)).T)
@@ -110,6 +138,7 @@ def distance(u,v, metric):
     elif metric == 'js_divergence':
         return graco.distances.js_divergence(u,v)
     else:
+        u, v = np.array(u).flatten(), np.array(v).flatten()
         return float(pdist([u,v], metric))
 
 def convex_distance(u,v,metric):

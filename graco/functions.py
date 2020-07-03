@@ -67,6 +67,11 @@ class Write:
 class Calculate:
     @staticmethod
     def orbits(G, dtype=pd.DataFrame):
+        """
+        This method will remove self loops!
+        """
+        
+        G.remove_edges_from(nx.selfloop_edges(G))
 
         label_mapping   = {name:n for n,name in enumerate(G)}
         reverse_mapping = {value:key for key,value in label_mapping.items()}

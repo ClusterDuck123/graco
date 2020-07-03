@@ -38,6 +38,10 @@ def get_feature_matrix(feature, G_nx):
         feature_matrix = GCV[['D','A']]
     elif feature == 'GCV-DG':
         feature_matrix = GCV[['D','G']]
+    elif feature == 'GCV-DO':
+        feature_matrix = GCV[['D','O']]
+    elif feature == 'GCV-all':
+        feature_matrix = GCV.drop(('G','0-0'), axis=1)
     elif feature == 'GCV-DG-2':
         feature_matrix = GCV[['D','G']].drop(('G','2-1'), axis=1)
     elif feature == 'GCV-DG-3':

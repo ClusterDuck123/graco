@@ -157,13 +157,15 @@ def main(in_parms):
 # =============================================================================
 
 network_names = {'GI_Constanzo2016',
-                 #'systematic_PPI_BioGRID',
-                 #'systematic_CoEx_COEXPRESdb'
+                 'systematic_PPI_BioGRID',
+                 'systematic_CoEx_COEXPRESdb'
                  }
-features = {'GCV-O+'}
-metrics  = {#'mahalanobis', 'GDV_similarity', 'seuclidean', 'hellinger',
+features = {'GDV'} #'GCV-O+', 'GCV-all', 'triangle'}
+metrics  = {'GDV_similarity'
+            #'mahalanobis', 'seuclidean', 'hellinger',
             #'cityblock', 'euclidean',
-            'chebyshev',
+            #'chebyshev',
+            #'js_divergence'
             #'canberra', 'cosine',
             #'correlation', 'braycurtis', 'sqeuclidean'
             }
