@@ -3,9 +3,12 @@ from scipy.spatial.distance import cdist, pdist, squareform
 import ot
 import graco
 import scipy
+import warnings
 import numpy as np
 import pandas as pd
 import networkx as nx
+
+warnings.filterwarnings("error")
 
 def triangle_signature(G):
     """
@@ -42,7 +45,7 @@ def GCD11(G1, G2, metric='euclidean'):
     GCM2 = squareform(GDV_to_GCM11(GDV2).corr(), checks=False)
     return distance(GCM1,GCM2,metric)
 
-def emd(xs, xt, metric='euclidean'):
+def emd(xs, xt, metric='euclidean', numItermax=2**17, **kwargs):
 
     if len(xs.shape) == 1:
             xs = xs.reshape(-1,1)
@@ -59,11 +62,14 @@ def emd(xs, xt, metric='euclidean'):
     a = np.ones(len(xs))/len(xs)
     b = np.ones(len(xt))/len(xt)
 
-    F = ot.emd(a,b, M2)
-
-    assert np.isclose(np.sum(F), 1)
-
-    return np.sum(M*F)
+    for i in range(3):
+        try:
+            F = ot.emd(a, b, M2, numItermax, **kwargs)
+            # np.isclose(np.sum(F), 1)
+            return np.sum(M*F)
+        except UserWarning:
+            numItermax = 2*numItermax
+    assert False, "No conversion reached. Try to increase numItermax!"
 
 def triangle_distance(Gs, Gt, metric='euclidean'):
     xs = np.nan_to_num(np.array(triangle_signature(Gs)).T)
